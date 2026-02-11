@@ -57,6 +57,13 @@ let currentPage = 1;
 
 // ===== INICIALIZACIÓN =====
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('📄 Verificando PDF.js...');
+  if (typeof pdfjsLib !== 'undefined') {
+    console.log('✅ PDF.js cargado correctamente');
+  } else {
+    console.warn('⚠️ PDF.js no está disponible. Los PDFs se abrirán en navegador.');
+  }
+  
   seedDefaultMaterials();
   initHero();
   initPageLogic();
@@ -318,16 +325,31 @@ function renderManualsGallery() {
 }
 
 async function openFlipbookDirect(filename, title) {
+  console.log('🔍 openFlipbookDirect llamado con:', filename, title);
+  
   const container = document.getElementById('flipbook-fullpage');
-  if (!container) return;
+  const fallback = document.getElementById('pdf-fallback');
+  
+  if (!container) {
+    console.error('❌ No se encontró el elemento flipbook-fullpage');
+    return;
+  }
+  
+  // Verificar si pdfjsLib está disponible
+  if (typeof pdfjsLib === 'undefined') {
+    console.warn('⚠️ PDF.js no está disponible. Abriendo en navegador...');
+    window.open(filename, '_blank');
+    return;
+  }
   
   try {
-       // Usar la ruta del PDF directamente (sin /)
-    const pdfPath = filename;
-
+    console.log('📄 Intentando cargar PDF:', filename);
     
-    // Cargar PDF con PDF.js
-    const pdf = await pdfjsLib.getDocument(pdfPath).promise;
+    // Usar la ruta simple del archivo
+    console.log('📍 Solicitud a:', filename);
+    const pdf = await pdfjsLib.getDocument(filename).promise;
+    
+    console.log('✅ PDF cargado. Páginas:', pdf.numPages);
     pdfDoc = pdf;
     currentPage = 1;
     
@@ -335,14 +357,39 @@ async function openFlipbookDirect(filename, title) {
     document.getElementById('flipbook-title').textContent = `📖 Manual: ${title}`;
     document.getElementById('total-pages-full').textContent = pdf.numPages;
     
+    // Ocultar fallback
+    if (fallback) fallback.style.display = 'none';
+    container.style.display = 'block';
+    
     // Renderizar primera página
     await renderPDFFull(1);
+    console.log('✅ Primera página renderizada');
     
-    // Mostrar container
-    container.style.display = 'block';
   } catch (error) {
-    console.error('Error al cargar PDF:', error);
-    alert('No se pudo cargar el manual. Verifica que el archivo exista.');
+    console.error('❌ Error al cargar PDF:', error);
+    
+    // Mostrar fallback
+    if (fallback) {
+      container.style.display = 'none';
+      fallback.style.display = 'block';
+      document.getElementById('flipbook-title').textContent = `📖 Manual: ${title}`;
+      
+      // Configurar botones del fallback
+      document.getElementById('open-pdf-btn').onclick = () => {
+        console.log('🔗 Abriendo PDF en navegador...');
+        window.open(filename, '_blank');
+      };
+      
+      document.getElementById('download-pdf-btn').onclick = () => {
+        console.log('⬇️ Descargando PDF...');
+        const link = document.createElement('a');
+        link.href = filename;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+    }
   }
 }
 
@@ -1365,4 +1412,3 @@ function deleteSubmission(id) {
   localStorage.setItem('ue_material_submissions', JSON.stringify(subs));
   renderTeacherSubmissions();
 }
-
