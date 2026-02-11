@@ -322,8 +322,9 @@ async function openFlipbookDirect(filename, title) {
   if (!container) return;
   
   try {
-    // Construir la ruta correcta del PDF (desde la raíz)
-    const pdfPath = filename.startsWith('/') ? filename : '/' + filename;
+       // Usar la ruta del PDF directamente (sin /)
+    const pdfPath = filename;
+
     
     // Cargar PDF con PDF.js
     const pdf = await pdfjsLib.getDocument(pdfPath).promise;
@@ -1364,3 +1365,4 @@ function deleteSubmission(id) {
   localStorage.setItem('ue_material_submissions', JSON.stringify(subs));
   renderTeacherSubmissions();
 }
+
