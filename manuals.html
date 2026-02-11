@@ -45,6 +45,16 @@
         <canvas id="pdf-canvas-fullpage" style="max-width:100%;max-height:100%;box-shadow:0 10px 30px rgba(0,0,0,0.15)"></canvas>
       </div>
 
+      <!-- Fallback si falla PDF.js -->
+      <div id="pdf-fallback" style="display:none;text-align:center;padding:30px;background:#fff3cd;border-radius:8px;margin:20px 0">
+        <p style="font-size:1.1em;margin-bottom:15px">⚠️ No se pudo cargar el lector de PDF en esta página.</p>
+        <p style="margin-bottom:20px;color:#666">Puedes abrir el manual directamente o descargarlo:</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn primary" id="open-pdf-btn" style="padding:12px 20px">🔍 Abrir en navegador</button>
+          <button class="btn secondary" id="download-pdf-btn" style="padding:12px 20px">⬇️ Descargar</button>
+        </div>
+      </div>
+
       <!-- Controles de navegación -->
       <div style="display:flex;justify-content:space-between;align-items:center;gap:15px;padding-top:15px;border-top:2px solid var(--gray-border)">
         <button id="prev-btn-full" class="btn primary" onclick="prevPageFull()" style="flex:0 0 auto;padding:12px 20px">⬅️ Anterior</button>
